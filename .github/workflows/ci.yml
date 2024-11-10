@@ -1,0 +1,68 @@
+name: CI/CD for Spring Boot with Docker
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin' # Используем Temurin JDK
+          java-version: '17'
+
+      - name: Cache Maven packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven
+
+      - name: Build with Maven
+        run: mvn clean package
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Cache Docker layers
+        uses: actions/cache@v3
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
+
+      - name: Set up Docker Compose
+        run: sudo apt-get update && sudo apt-get install docker-compose -y
+
+      - name: Build and run services with Docker Compose
+        run: docker-compose up --build -d
+
+       # toDo clarification needed
+#      - name: Run tests
+#        run: docker-compose exec <your-service-name> ./mvnw test
+
+      - name: Shutdown Docker Compose
+        run: docker-compose down
+
+      # toDo hide secrets
+      - name: Log in to Docker Hub
+        run: echo "#45ertdfg" | docker login -u "semen.nechypurenko@gmail.com" --password-stdin
+
+      - name: Build Docker image
+        run: docker build -t sonechypurenko/raccoon-backend:latest .
+
+      - name: Push Docker image to Docker Hub
+        run: docker push sonechypurenko/raccoon-backend:latest
