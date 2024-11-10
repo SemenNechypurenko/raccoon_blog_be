@@ -1,6 +1,7 @@
 package i.controller;
 
 import i.dto.UserCreateRequestDto;
+import i.dto.UserCreateResponseDto;
 import i.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -16,13 +17,14 @@ import static org.springframework.http.HttpStatus.CREATED;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("user")
+@RequestMapping("/users")
 @Validated
 public class UserController {
+
     private final UserService userService;
 
     @PostMapping
-    public ResponseEntity<UserCreateRequestDto> save(@Valid @RequestBody UserCreateRequestDto userCreateRequestDto) {
+    public ResponseEntity<UserCreateResponseDto> save(@Valid @RequestBody UserCreateRequestDto userCreateRequestDto) {
         return new ResponseEntity<>(userService.save(userCreateRequestDto), CREATED);
     }
 

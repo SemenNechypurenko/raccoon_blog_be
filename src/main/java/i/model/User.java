@@ -8,6 +8,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 @Document(collection = "users")
 @NoArgsConstructor
@@ -16,7 +17,7 @@ import java.util.Set;
 public class User {
 
     @Id
-    private String id;
+    private String id = UUID.randomUUID().toString();
 
     private String username;
     private String password;

@@ -14,7 +14,7 @@ import java.util.Set;
 public class UserCreateRequestDto {
     private Long id;
     @NotBlank(message = "should not be empty")
-    private String name;
+    private String username;
     @NotBlank(message = "should not be empty")
     private String email;
     @NotBlank(message = "should not be empty")

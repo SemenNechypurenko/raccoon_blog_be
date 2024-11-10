@@ -5,9 +5,11 @@ C:\Users\USER\IdeaProjects\Raccoon\src\main\java\i\model\Role.java
 C:\Users\USER\IdeaProjects\Raccoon\src\main\java\i\model\User.java
 C:\Users\USER\IdeaProjects\Raccoon\src\main\java\i\dto\UserCreateRequestDto.java
 C:\Users\USER\IdeaProjects\Raccoon\src\main\java\i\dto\RoleDto.java
+C:\Users\USER\IdeaProjects\Raccoon\src\main\java\i\dto\UserCreateResponseDto.java
 C:\Users\USER\IdeaProjects\Raccoon\src\main\java\i\repository\RoleRepository.java
 C:\Users\USER\IdeaProjects\Raccoon\src\main\java\i\RaccoonApplication.java
 C:\Users\USER\IdeaProjects\Raccoon\src\main\java\i\repository\UserRepository.java
 C:\Users\USER\IdeaProjects\Raccoon\src\main\java\i\service\UserService.java
 C:\Users\USER\IdeaProjects\Raccoon\src\main\java\i\service\RoleService.java
+C:\Users\USER\IdeaProjects\Raccoon\src\main\java\i\config\ModelMapperConfig.java
 C:\Users\USER\IdeaProjects\Raccoon\src\main\java\i\config\CorsConfig.java

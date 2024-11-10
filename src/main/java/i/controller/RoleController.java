@@ -16,7 +16,7 @@ import static org.springframework.http.HttpStatus.CREATED;
 @RestController
 @RequiredArgsConstructor
 @Slf4j
-@RequestMapping("/role")
+@RequestMapping("/roles")
 public class RoleController {
 
     private final RoleService roleService;
