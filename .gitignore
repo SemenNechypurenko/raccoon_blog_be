@@ -8,8 +8,11 @@
 # testing
 /coverage
 
-# production
-/build
+# Ignore target/ directory (for Maven projects)
+target/
+
+# Ignore build/ directory (for Gradle projects)
+build/
 
 # misc
 .DS_Store
