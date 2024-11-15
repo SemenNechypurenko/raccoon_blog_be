@@ -15,10 +15,8 @@ import java.util.UUID;
 @AllArgsConstructor
 @Data
 public class User {
-
     @Id
     private String id = UUID.randomUUID().toString();
-
     private String username;
     private String password;
     private String email;

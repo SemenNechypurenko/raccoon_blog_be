@@ -5,19 +5,12 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.HashSet;
-import java.util.Set;
-
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
-public class UserCreateRequestDto {
-    private String id;
+@AllArgsConstructor
+public class AuthenticationRequestDto {
     @NotBlank(message = "should not be empty")
     private String username;
     @NotBlank(message = "should not be empty")
-    private String email;
-    @NotBlank(message = "should not be empty")
     private String password;
-    private Set<RoleDto> roles = new HashSet<>();
 }
