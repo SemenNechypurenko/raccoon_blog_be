@@ -1,6 +1,5 @@
 package i.security;
 
-
 import i.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -74,7 +73,7 @@ public class SecurityConfig {
     public UserDetailsService userDetailsService() {
         return username -> userRepository.findByUsername(username)
                 .map(user -> new User(
-                        user.getEmail(),
+                        user.getUsername(),
                         user.getPassword(),
                         user.getRoles().stream()
                                 .map(role -> new SimpleGrantedAuthority(role.getName()))
