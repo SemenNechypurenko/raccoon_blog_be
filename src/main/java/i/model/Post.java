@@ -7,6 +7,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
@@ -22,7 +23,7 @@ public class Post {
     private String content;             // Post text
     private String username;            // Post author username
     private LocalDateTime createdAt = LocalDateTime.now();    // Date and time the post was created
-    private Set<String> tags;           // Post tags
-    private Set<String> commentIds;     // List of comments (ID) belonging to this post
+    private Set<String> tags = new HashSet<>();           // Post tags
+    private Set<String> commentIds = new HashSet<>();     // List of comments (ID) belonging to this post
 }
 
