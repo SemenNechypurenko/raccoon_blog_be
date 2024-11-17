@@ -22,9 +22,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class PostService {
 
-    // Injecting dependencies via constructor (handled by Lombok's @RequiredArgsConstructor)
-    private final PostRepository postRepository;
-    private final ModelMapper modelMapper;
+    private final PostRepository repository;
+    private final ModelMapper mapper;
 
     /**
      * Creates a new post based on the provided PostCreateRequestDto.
@@ -35,16 +34,16 @@ public class PostService {
     public PostCreateResponseDto createPost(PostCreateRequestDto postCreateRequestDto,
                                             String username) {
         // Convert the request DTO to the Post entity
-        Post post = modelMapper.map(postCreateRequestDto, Post.class);
+        Post post = mapper.map(postCreateRequestDto, Post.class);
 
         // Set the username (author) to the post
         post.setUsername(username);
 
         // Save the Post entity in the database
-        post = postRepository.save(post);
+        post = repository.save(post);
 
         // Convert the saved Post entity to the response DTO and return it
-        return modelMapper.map(post, PostCreateResponseDto.class);
+        return mapper.map(post, PostCreateResponseDto.class);
     }
 
     /**
@@ -54,12 +53,19 @@ public class PostService {
      */
     public List<PostDto> list() {
         // Fetch all posts from the database
-        List<Post> posts = postRepository.findAll();
+        List<Post> posts = repository.findAll();
 
         // Sort posts by creation date (descending), map them to PostDto, and collect as a list
         return posts.stream()
                 .sorted(Comparator.comparing(Post::getCreatedAt).reversed())
-                .map(post -> modelMapper.map(post, PostDto.class))
+                .map(post -> mapper.map(post, PostDto.class))
                 .collect(Collectors.toList());
     }
+
+    public PostDto getPostById(String id) {
+        return repository.findById(id)
+                .map(post -> mapper.map(post, PostDto.class))
+                .orElseThrow(() -> new RuntimeException("Post not found"));
+    }
+
 }
