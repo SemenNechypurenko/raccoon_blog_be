@@ -20,7 +20,7 @@ public class Post {
     private String id = UUID.randomUUID().toString();                  // Unique post identifier
     private String title;               // Post title
     private String content;             // Post text
-    private String authorId;            // Post author ID
+    private String username;            // Post author username
     private LocalDateTime createdAt = LocalDateTime.now();    // Date and time the post was created
     private Set<String> tags;           // Post tags
     private Set<String> commentIds;     // List of comments (ID) belonging to this post

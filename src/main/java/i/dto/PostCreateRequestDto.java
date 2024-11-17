@@ -10,5 +10,4 @@ import lombok.NoArgsConstructor;
 public class PostCreateRequestDto {
     private String title;       // Post title
     private String content;     // Post text
-    private String authorId;    // Author ID
 }
