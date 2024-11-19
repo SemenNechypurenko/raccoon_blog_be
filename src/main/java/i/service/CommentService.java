@@ -2,55 +2,60 @@ package i.service;
 
 import i.dto.CommentCreateRequestDto;
 import i.dto.CommentCreateResponseDto;
+import i.dto.CommentDto;
 import i.model.Comment;
 import i.repository.CommentRepository;
 import i.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class CommentService {
 
     private final CommentRepository commentRepository;
-    private final PostRepository postRepository;
-    private final ModelMapper modelMapper;
+    private final PostRepository postRepository; // Для проверки существования поста
+    private final ModelMapper mapper;
 
-    public CommentCreateResponseDto addComment(CommentCreateRequestDto commentDto) {
-        // Check that the post exists
-        postRepository.findById(commentDto.getPostId())
-                .orElseThrow(() -> new IllegalArgumentException("Post not found"));
+    public CommentCreateResponseDto createComment(CommentCreateRequestDto requestDto, String authorId) {
+        // Проверяем, существует ли пост с указанным postId
+        postRepository.findById(requestDto.getPostId())
+                .orElseThrow(() -> new RuntimeException("Post with ID " + requestDto.getPostId() + " does not exist"));
 
-        // If parentCommentId is specified, check that the parent comment exists
-        if (commentDto.getParentCommentId() != null) {
-            commentRepository.findById(commentDto.getParentCommentId())
-                    .orElseThrow(() -> new IllegalArgumentException("Parent comment not found"));
-        }
+        // Настраиваем маппинг для пропуска поля id
+        mapper.typeMap(CommentCreateRequestDto.class, Comment.class).addMappings(m -> {
+            m.skip(Comment::setId); // Пропустить маппинг id
+        });
 
-        // Convert CommentCreateRequestDto to Comment
-        Comment comment = convertToEntity(commentDto);
+        // Маппинг DTO -> Entity
+        Comment comment = mapper.map(requestDto, Comment.class);
+
+        // Устанавливаем дополнительные поля
+        comment.setAuthorId(authorId);
+        comment.setCreatedAt(LocalDateTime.now());
+
+        // Сохраняем комментарий в базе данных
         comment = commentRepository.save(comment);
 
-        // Convert the saved Comment to CommentCreateResponseDto
-        return convertFromEntity(comment);
+        // Конвертируем сохраненную сущность в Response DTO и возвращаем
+        return mapper.map(comment, CommentCreateResponseDto.class);
     }
 
-    /**
-     * Convert CommentCreateRequestDto to Comment using ModelMapper.
-     */
-    private Comment convertToEntity(CommentCreateRequestDto commentDto) {
-        Comment comment = modelMapper.map(commentDto, Comment.class);
-        comment.setCreatedAt(java.time.LocalDateTime.now());
-        return comment;
+    public List<CommentDto> listCommentsByPostId(String postId) {
+        // Получаем все комментарии к заданному посту, конвертируем в DTO и возвращаем
+        return commentRepository.findByPostId(postId).stream()
+                .map(comment -> mapper.map(comment, CommentDto.class))
+                .collect(Collectors.toList());
     }
 
-    /**
-     * Convert Comment to CommentCreateResponseDto.
-     */
-    private CommentCreateResponseDto convertFromEntity(Comment comment) {
-        return modelMapper.map(comment, CommentCreateResponseDto.class);
+    public CommentDto getCommentById(String id) {
+        return commentRepository.findById(id)
+                .map(comment -> mapper.map(comment, CommentDto.class))
+                .orElseThrow(() -> new RuntimeException("Comment not found"));
     }
 }
