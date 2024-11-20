@@ -4,6 +4,7 @@ import i.dto.CommentCreateRequestDto;
 import i.dto.CommentCreateResponseDto;
 import i.dto.CommentDto;
 import i.model.Comment;
+import i.model.Post;
 import i.repository.CommentRepository;
 import i.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +25,7 @@ public class CommentService {
 
     public CommentCreateResponseDto createComment(CommentCreateRequestDto requestDto, String authorId) {
         // Проверяем, существует ли пост с указанным postId
-        postRepository.findById(requestDto.getPostId())
+        Post post = postRepository.findById(requestDto.getPostId())
                 .orElseThrow(() -> new RuntimeException("Post with ID " + requestDto.getPostId() + " does not exist"));
 
         // Настраиваем маппинг для пропуска поля id
@@ -41,6 +42,9 @@ public class CommentService {
 
         // Сохраняем комментарий в базе данных
         comment = commentRepository.save(comment);
+
+        post.getCommentIds().add(comment.getId());
+        postRepository.save(post);
 
         // Конвертируем сохраненную сущность в Response DTO и возвращаем
         return mapper.map(comment, CommentCreateResponseDto.class);
