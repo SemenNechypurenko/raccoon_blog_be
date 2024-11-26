@@ -18,7 +18,7 @@ public class Comment {
     private String id = UUID.randomUUID().toString();
     private String postId;  // ID of the post to which the comment refers
     private String content;
-    private String authorId; // ID of the comment author (user link)
+    private String username; // ID of the comment author (user link)
     private String parentCommentId; // Parent comment ID if this is a reply to another comment
     private LocalDateTime createdAt;
 }

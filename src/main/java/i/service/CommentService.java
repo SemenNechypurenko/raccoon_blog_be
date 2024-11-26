@@ -23,21 +23,21 @@ public class CommentService {
     private final PostRepository postRepository; // Для проверки существования поста
     private final ModelMapper mapper;
 
-    public CommentCreateResponseDto createComment(CommentCreateRequestDto requestDto, String authorId) {
+    public CommentCreateResponseDto createComment(CommentCreateRequestDto requestDto, String username) {
         // Проверяем, существует ли пост с указанным postId
         Post post = postRepository.findById(requestDto.getPostId())
                 .orElseThrow(() -> new RuntimeException("Post with ID " + requestDto.getPostId() + " does not exist"));
 
         // Настраиваем маппинг для пропуска поля id
         mapper.typeMap(CommentCreateRequestDto.class, Comment.class).addMappings(m -> {
-            m.skip(Comment::setId); // Пропустить маппинг id
+            m.skip(Comment::setId); // skip mapping id
         });
 
         // Маппинг DTO -> Entity
         Comment comment = mapper.map(requestDto, Comment.class);
 
         // Устанавливаем дополнительные поля
-        comment.setAuthorId(authorId);
+        comment.setUsername(username);
         comment.setCreatedAt(LocalDateTime.now());
 
         // Сохраняем комментарий в базе данных
