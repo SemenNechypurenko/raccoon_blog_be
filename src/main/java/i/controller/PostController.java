@@ -28,7 +28,12 @@ public class PostController {
 
     @GetMapping
     public ResponseEntity<List<PostDto>> getListOfPosts() {
-        return new ResponseEntity<>(service.list(), OK);
+        return new ResponseEntity<>(service.list(null), OK);
+    }
+
+    @GetMapping("/user/{username}")
+    public ResponseEntity<List<PostDto>> getListOfPostsForUser(@PathVariable("username") String username) {
+        return new ResponseEntity<>(service.list(username), OK);
     }
 
     @GetMapping("/{id}")

@@ -51,9 +51,11 @@ public class PostService {
      *
      * @return a list of PostDto objects representing all posts
      */
-    public List<PostDto> list() {
-        // Fetch all posts from the database
-        List<Post> posts = repository.findAll();
+    public List<PostDto> list(String username) {
+        List<Post> posts = username != null
+                ? repository.findByUsername(username)
+                : repository.findAll();
+
 
         // Sort posts by creation date (descending), map them to PostDto, and collect as a list
         return posts.stream()
