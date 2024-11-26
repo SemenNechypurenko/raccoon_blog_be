@@ -56,7 +56,6 @@ public class PostService {
                 ? repository.findByUsername(username)
                 : repository.findAll();
 
-
         // Sort posts by creation date (descending), map them to PostDto, and collect as a list
         return posts.stream()
                 .sorted(Comparator.comparing(Post::getCreatedAt).reversed())
