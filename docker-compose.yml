@@ -10,4 +10,4 @@ services:
       - "8080:8080"
     environment:
       # MongoDB Atlas URI
-      SPRING_DATA_MONGODB_URI: mongodb+srv://raccoon:1111@cluster0.h997m.mongodb.net/raccoon?retryWrites=true&w=majority&appName=Cluster0
+      SPRING_DATA_MONGODB_URI: ${SPRING_DATA_MONGODB_URI}
