@@ -5,6 +5,7 @@ import i.dto.AuthenticationRequestDto;
 import i.dto.TokenDto;
 import i.dto.UserCreateResponseDto;
 import i.service.AuthService;
+import jdk.jfr.Description;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -39,6 +40,7 @@ class AuthControllerTest {
     }
 
     @Test
+    @Description("Should return valid token when correct credentials")
     void shouldReturnToken_whenLoginRequestIsValid() throws Exception {
         final AuthenticationRequestDto authRequestDto = objectMapper.readValue(
                 """
@@ -81,6 +83,34 @@ class AuthControllerTest {
                 .andExpect(jsonPath("$.user.username").value("testUser"));
     }
 
+    @Test
+    @Description("Should return bed request status when username is not entered")
+    void shouldReturn400Response_whenLoginRequestIsValid() throws Exception {
+        final AuthenticationRequestDto authRequestDto = objectMapper.readValue(
+                """
+                        {
+                               "username": "",
+                               "password": "testPass"
+                           }
+                        """,
+                AuthenticationRequestDto.class);
+
+        mockMvc.perform(post("/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(
+                                """
+                                        {
+                                               "username": "",
+                                               "password": "testPass"
+                                           }
+                                        """
+                        ))
+                .andExpect(status().isBadRequest())
+        // toDo validate body
+//                .andExpect(jsonPath("$.username")
+//                        .value("Username should not be empty or blank"))
+        ;
+    }
 
 }
 
