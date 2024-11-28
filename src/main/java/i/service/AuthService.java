@@ -2,7 +2,7 @@ package i.service;
 
 import i.dto.AuthenticationRequestDto;
 import i.dto.TokenDto;
-import i.dto.UserCreateRequestDto;
+import i.dto.UserCreateResponseDto;
 import i.model.User;
 import i.repository.UserRepository;
 import i.security.JwtUtils;
@@ -35,10 +35,10 @@ public class AuthService {
         final UserDetails userDetails = userDetailsService.loadUserByUsername(dto.getUsername());
         final User currenUser = userRepository.findByUsername(dto.getUsername()).orElse(null);
 
-        UserCreateRequestDto userCreateRequestDto = modelMapper.map(currenUser, UserCreateRequestDto.class);
+        UserCreateResponseDto userCreateResponseDto = modelMapper.map(currenUser, UserCreateResponseDto.class);
 
         String token = jwtUtils.generateToken(userDetails);
 
-        return new TokenDto(userCreateRequestDto, token);
+        return new TokenDto(userCreateResponseDto, token);
     }
 }
