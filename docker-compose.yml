@@ -3,10 +3,11 @@ version: '3.8'
 services:
   app:
     image: sonechypurenko/raccoon-backend:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
     ports:
       - "8080:8080"
-#    toDo hide secrets
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgresql-raccoon.alwaysdata.net:5432/raccoon_data
-      SPRING_DATASOURCE_USERNAME: raccoon
-      SPRING_DATASOURCE_PASSWORD: '#45ertdfg'
+      # MongoDB Atlas URI
+      SPRING_DATA_MONGODB_URI: mongodb+srv://raccoon:1111@cluster0.h997m.mongodb.net/raccoon?retryWrites=true&w=majority&appName=Cluster0
