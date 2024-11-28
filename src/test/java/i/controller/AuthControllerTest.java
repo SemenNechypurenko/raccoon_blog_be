@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import i.dto.AuthenticationRequestDto;
 import i.dto.TokenDto;
 import i.dto.UserCreateResponseDto;
+import i.interceptors.ControllerExceptionHandler;
 import i.service.AuthService;
 import jdk.jfr.Description;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,12 +37,16 @@ class AuthControllerTest {
 
     @BeforeEach
     void setUp() {
-        mockMvc = MockMvcBuilders.standaloneSetup(authController).build();
+        // Set up the MockMvc instance with the controller and the exception handler
+        mockMvc = MockMvcBuilders.standaloneSetup(authController)
+                .setControllerAdvice(new ControllerExceptionHandler())
+                .build();
     }
 
     @Test
     @Description("Should return valid token when correct credentials")
     void shouldReturnToken_whenLoginRequestIsValid() throws Exception {
+        // Mock request and response DTOs
         final AuthenticationRequestDto authRequestDto = objectMapper.readValue(
                 """
                         {
@@ -67,7 +72,7 @@ class AuthControllerTest {
         // Mock the behavior of the AuthService
         when(authService.token(authRequestDto)).thenReturn(mockTokenDto);
 
-        // Execute and Assert
+        // Execute the request and verify the response
         mockMvc.perform(post("/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(
@@ -84,17 +89,9 @@ class AuthControllerTest {
     }
 
     @Test
-    @Description("Should return bed request status when username is not entered")
-    void shouldReturn400Response_whenLoginRequestIsValid() throws Exception {
-        final AuthenticationRequestDto authRequestDto = objectMapper.readValue(
-                """
-                        {
-                               "username": "",
-                               "password": "testPass"
-                           }
-                        """,
-                AuthenticationRequestDto.class);
-
+    @Description("Should return bad request status when username is not entered")
+    void shouldReturn400Response_whenUsernameIsEmpty() throws Exception {
+        // Simulate a request with an empty username
         mockMvc.perform(post("/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(
@@ -106,11 +103,43 @@ class AuthControllerTest {
                                         """
                         ))
                 .andExpect(status().isBadRequest())
-        // toDo validate body
-//                .andExpect(jsonPath("$.username")
-//                        .value("Username should not be empty or blank"))
-        ;
+                .andExpect(jsonPath("$.username").value("Username should not be empty or blank"));
     }
 
-}
+    @Test
+    @Description("Should return bad request status when password is not entered")
+    void shouldReturn400Response_whenPasswordIsEmpty() throws Exception {
+        // Simulate a request with an empty password
+        mockMvc.perform(post("/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(
+                                """
+                                        {
+                                               "username": "testUser",
+                                               "password": ""
+                                           }
+                                        """
+                        ))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.password").value("Password should not be empty or blank"));
+    }
 
+    @Test
+    @Description("Should return bad request status when one field is empty and another is null")
+    void shouldReturn400Response_whenOneFieldEmptyAndAnotherNull() throws Exception {
+        // Simulate a request with an empty username and null password
+        mockMvc.perform(post("/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(
+                                """
+                                        {
+                                               "username": "",
+                                               "password": null
+                                           }
+                                        """
+                        ))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.username").value("Username should not be empty or blank"))
+                .andExpect(jsonPath("$.password").value("Password should not be empty or blank"));
+    }
+}
