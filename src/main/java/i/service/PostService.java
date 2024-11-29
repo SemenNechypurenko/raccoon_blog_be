@@ -1,6 +1,6 @@
 package i.service;
 
-import i.dto.PostCreateRequestDto;
+import i.config.FileUploadConfig;
 import i.dto.PostCreateResponseDto;
 import i.dto.PostDto;
 import i.model.Post;
@@ -9,10 +9,18 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.UUID;
+
 
 /**
  * Service class for managing posts.
@@ -24,27 +32,40 @@ public class PostService {
 
     private final PostRepository repository;
     private final ModelMapper mapper;
+    private final FileUploadConfig fileUploadConfig;
 
-    /**
-     * Creates a new post based on the provided PostCreateRequestDto.
-     *
-     * @param postCreateRequestDto the request DTO containing post details
-     * @return a response DTO containing the created post details
-     */
-    public PostCreateResponseDto createPost(PostCreateRequestDto postCreateRequestDto,
-                                            String username) {
-        // Convert the request DTO to the Post entity
-        Post post = mapper.map(postCreateRequestDto, Post.class);
-
-        // Set the username (author) to the post
+    public PostCreateResponseDto createPost(String title, String content, MultipartFile image, String username) {
+        // Создаем новый объект Post
+        Post post = new Post();
+        post.setTitle(title);
+        post.setContent(content);
         post.setUsername(username);
 
-        // Save the Post entity in the database
+        // Если изображение передано, сохраняем его
+        if (image != null) {
+            String imageUrl = saveImage(image);
+            post.setImageUrl(imageUrl);  // Устанавливаем URL изображения в пост
+        }
+
+        // Сохраняем пост в базу данных
         post = repository.save(post);
 
-        // Convert the saved Post entity to the response DTO and return it
+        // Возвращаем ответ в формате DTO
         return mapper.map(post, PostCreateResponseDto.class);
     }
+
+    private String saveImage(MultipartFile image) {
+        try {
+            // Генерируем уникальное имя для файла и сохраняем его
+            String filename = UUID.randomUUID() + "_" + image.getOriginalFilename();
+            Path filePath = Paths.get(fileUploadConfig.getUploadPath(), filename);
+            Files.copy(image.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+            return filename; // Или полный путь, если необходимо
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to store image", e);
+        }
+    }
+
 
     /**
      * Retrieves a list of all posts, sorted by creation date in descending order.
@@ -52,21 +73,14 @@ public class PostService {
      * @return a list of PostDto objects representing all posts
      */
     public List<PostDto> list(String username) {
-        List<Post> posts = username != null
-                ? repository.findByUsername(username)
-                : repository.findAll();
+        List<Post> posts = username != null ? repository.findByUsername(username) : repository.findAll();
 
         // Sort posts by creation date (descending), map them to PostDto, and collect as a list
-        return posts.stream()
-                .sorted(Comparator.comparing(Post::getCreatedAt).reversed())
-                .map(post -> mapper.map(post, PostDto.class))
-                .collect(Collectors.toList());
+        return posts.stream().sorted(Comparator.comparing(Post::getCreatedAt).reversed()).map(post -> mapper.map(post, PostDto.class)).collect(Collectors.toList());
     }
 
     public PostDto getPostById(String id) {
-        return repository.findById(id)
-                .map(post -> mapper.map(post, PostDto.class))
-                .orElseThrow(() -> new RuntimeException("Post not found"));
+        return repository.findById(id).map(post -> mapper.map(post, PostDto.class)).orElseThrow(() -> new RuntimeException("Post not found"));
     }
 
 }

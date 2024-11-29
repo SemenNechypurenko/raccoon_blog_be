@@ -34,4 +34,7 @@ public class Post {
     private Set<String> tags = new HashSet<>();           // Post tags (indexed in some cases for search optimization)
 
     private Set<String> commentIds = new HashSet<>();     // List of comments (ID) belonging to this post
+
+    private String imageUrl;                            // URL to the image
+
 }

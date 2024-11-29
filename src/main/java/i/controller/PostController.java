@@ -1,12 +1,12 @@
 package i.controller;
 
-import i.dto.PostCreateRequestDto;
 import i.dto.PostCreateResponseDto;
 import i.dto.PostDto;
 import i.service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
 import java.util.List;
@@ -21,10 +21,17 @@ public class PostController {
     private final PostService service;
 
     @PostMapping
-    public ResponseEntity<PostCreateResponseDto> createPost
-            (@RequestBody PostCreateRequestDto postCreateRequestDto, Principal principal) {
-        return ResponseEntity.ok(service.createPost(postCreateRequestDto, principal.getName()));
+    public ResponseEntity<PostCreateResponseDto> createPost(
+            @RequestPart("title") String title,   // Получаем title как строку
+            @RequestPart("content") String content, // Получаем content как строку
+            @RequestPart(value = "image", required = false) MultipartFile image, // Получаем файл
+            Principal principal) {
+        // Передаем данные в сервис, где будет создан объект Post
+        PostCreateResponseDto responseDto = service.createPost(title, content, image, principal.getName());
+
+        return ResponseEntity.ok(responseDto);
     }
+
 
     @GetMapping
     public ResponseEntity<List<PostDto>> getListOfPosts() {
@@ -40,7 +47,6 @@ public class PostController {
     public ResponseEntity<PostDto> getById(@PathVariable("id") String id) {
         return ResponseEntity.ok(service.getPostById(id));
     }
-
 
 
 }

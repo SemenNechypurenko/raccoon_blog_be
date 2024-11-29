@@ -9,4 +9,5 @@ public class PostCreateResponseDto {
     private String content;     // Post text
     private String username;    // Author username
     private String createdAt;   // Post creation date
+    private String imageUrl;    // URL of the attached image
 }
