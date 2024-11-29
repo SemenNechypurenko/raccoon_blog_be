@@ -15,4 +15,5 @@ public class PostDto {
     private LocalDateTime createdAt;  // Date and time the post was created
     private Set<String> tags = new HashSet<>();           // Post tags
     private Set<String> commentIds = new HashSet<>(); // Post comment Ids
+    private String imageUrl;    // URL of the attached image
 }
