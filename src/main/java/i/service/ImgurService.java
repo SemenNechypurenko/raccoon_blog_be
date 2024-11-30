@@ -39,14 +39,11 @@ public class ImgurService {
         if (image.isEmpty()) {
             return Mono.error(new IllegalArgumentException("Image must not be empty"));
         }
-
         // Prepare form data for the request
         MultiValueMap<String, Object> formData = new LinkedMultiValueMap<>();
         formData.add("image", image.getResource());
-
         // Initialize WebClient with the Imgur base URL
         webClient = webClientBuilder.baseUrl(baseUrl).build();
-
         // Send POST request to Imgur API for image upload
         return webClient.post()
                 .uri("/3/image")  // Endpoint for image upload
@@ -67,7 +64,6 @@ public class ImgurService {
     public byte[] getImageByDirectUrl(String url) {
         // Initialize WebClient without a base URL to allow direct URL usage
         webClient = webClientBuilder.build();
-
         try {
             // Execute GET request to fetch the image
             return webClient.get()
