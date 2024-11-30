@@ -67,11 +67,19 @@ public class ImgurService {
     public byte[] getImageByDirectUrl(String url) {
         // Initialize WebClient without a base URL to allow direct URL usage
         webClient = webClientBuilder.build();
-        // Execute GET request to fetch the image
-        return webClient.get()
-                .uri(url)  // Use the full URL as the request URI
-                .retrieve()  // Retrieve the response
-                .bodyToMono(byte[].class)  // Parse response body as a byte array
-                .block();  // Block to wait for the response
+
+        try {
+            // Execute GET request to fetch the image
+            return webClient.get()
+                    .uri(url)  // Use the full URL as the request URI
+                    .retrieve()  // Retrieve the response
+                    .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(),
+                            clientResponse -> Mono.error(new RuntimeException("Image not found or server error occurred")))
+                    .bodyToMono(byte[].class)  // Parse response body as a byte array
+                    .block();  // Block to wait for the response
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to retrieve image from URL: " + url, e);
+        }
     }
+
 }
