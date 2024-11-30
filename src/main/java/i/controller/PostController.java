@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
 import java.security.Principal;
 import java.util.List;
 
@@ -25,7 +26,6 @@ public class PostController {
             @RequestPart("content") String content, // Получаем content как строку
             @RequestPart(value = "image", required = false) MultipartFile image, // Получаем файл
             Principal principal) {
-        // Передаем данные в сервис, где будет создан объект Post
         PostCreateResponseDto responseDto = service.createPost(title, content, image, principal.getName());
 
         return ResponseEntity.ok(responseDto);
@@ -47,10 +47,17 @@ public class PostController {
         return ResponseEntity.ok(service.getPostById(id));
     }
 
-    @GetMapping("/{id}/image")
-    public ResponseEntity<byte[]> getImage(@PathVariable("id") String id) {
-        return ResponseEntity.ok(service.getImageByPostId(id));
+    @GetMapping("/{id}/image-url")
+    public ResponseEntity<String> getImageUrl(@PathVariable("id") String id) {
+        String imageUrl = service.getImageUrlByPostId(id);
+        return ResponseEntity.ok(imageUrl);
     }
+
+
+//    @GetMapping("/{id}/image")
+//    public ResponseEntity<byte[]> getImage(@PathVariable("id") String id) {
+//        return ResponseEntity.ok(service.getImageByPostId(id));
+//    }
 
 
 }

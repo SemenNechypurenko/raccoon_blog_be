@@ -1,6 +1,7 @@
-package i.service;
+package i.storage;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import i.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
@@ -16,9 +17,10 @@ import reactor.core.publisher.Mono;
  */
 @Service
 @RequiredArgsConstructor
-public class ImgurService {
+public class ImgurService implements FileStorage{
 
     private final WebClient.Builder webClientBuilder;
+    private final PostRepository postRepository;
 
     @Value("${imgur.api.base-url}")
     private String baseUrl;  // Base URL for the Imgur API
@@ -34,6 +36,7 @@ public class ImgurService {
      * @param image the image to upload
      * @return a Mono emitting the URL of the uploaded image
      */
+    @Override
     public Mono<String> uploadImage(MultipartFile image) {
         // Ensure the image is not empty
         if (image.isEmpty()) {
@@ -53,6 +56,19 @@ public class ImgurService {
                 .retrieve()  // Execute the request and retrieve the response
                 .bodyToMono(JsonNode.class)  // Parse response as JsonNode
                 .map(response -> response.path("data").path("link").asText());  // Extract image URL from the response
+    }
+
+    @Override
+    public String getImageUrl(String postId) {
+        return postRepository.findById(postId)
+                .map(post -> {
+                    String imageUrl = post.getImageUrl();
+                    if (imageUrl == null || imageUrl.isEmpty()) {
+                        throw new IllegalArgumentException("Post with ID " + postId + " does not have an image.");
+                    }
+                    return imageUrl;
+                })
+                .orElseThrow(() -> new IllegalArgumentException("Post not found with ID: " + postId));
     }
 
     /**

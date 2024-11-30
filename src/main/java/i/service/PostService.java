@@ -4,6 +4,7 @@ import i.dto.PostCreateResponseDto;
 import i.dto.PostDto;
 import i.model.Post;
 import i.repository.PostRepository;
+import i.storage.FileStorage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -24,7 +25,7 @@ public class PostService {
 
     private final PostRepository repository;
     private final ModelMapper mapper;
-    private final ImgurService imgurService;
+    private final FileStorage fileStorage;
 
     /**
      * Creates a new post, optionally with an image.
@@ -42,7 +43,7 @@ public class PostService {
         post.setUsername(username);
         // Upload image if provided and set the image URL
         if (image != null) {
-            String imageUrl = imgurService.uploadImage(image).block();
+            String imageUrl = fileStorage.uploadImage(image).block();
             post.setImageUrl(imageUrl);
         }
         // Save the post to the database
@@ -78,13 +79,24 @@ public class PostService {
                 .orElseThrow(() -> new RuntimeException("Post not found"));
     }
 
-    /**
-     * Retrieves the image associated with a post by its ID.
-     *
-     * @param id the ID of the post
-     * @return a byte array of the image data
-     */
-    public byte[] getImageByPostId(String id) {
-        return imgurService.getImageByDirectUrl(getPostById(id).getImageUrl());
+    public String getImageUrlByPostId(String id) {
+        Post post = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Post not found with ID: " + id));
+        String imageUrl = post.getImageUrl();
+        if (imageUrl == null || imageUrl.isEmpty()) {
+            throw new IllegalArgumentException("Post with ID " + id + " does not have an associated image.");
+        }
+        return imageUrl;
     }
+
+
+//    /**
+//     * Retrieves the image associated with a post by its ID.
+//     *
+//     * @param id the ID of the post
+//     * @return a byte array of the image data
+//     */
+//    public byte[] getImageByPostId(String id) {
+//        return imgurService.getImageByDirectUrl(getPostById(id).getImageUrl());
+//    }
 }
