@@ -7,7 +7,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.security.Principal;
 import java.util.List;
 
@@ -46,6 +45,11 @@ public class PostController {
     @GetMapping("/{id}")
     public ResponseEntity<PostDto> getById(@PathVariable("id") String id) {
         return ResponseEntity.ok(service.getPostById(id));
+    }
+
+    @GetMapping("/{id}/image")
+    public ResponseEntity<byte[]> getImage(@PathVariable("id") String id) {
+        return ResponseEntity.ok(service.getImageByPostId(id));
     }
 
 

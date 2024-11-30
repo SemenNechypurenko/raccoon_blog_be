@@ -14,7 +14,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-
 /**
  * Service class for managing posts.
  */
@@ -27,53 +26,65 @@ public class PostService {
     private final ModelMapper mapper;
     private final ImgurService imgurService;
 
+    /**
+     * Creates a new post, optionally with an image.
+     *
+     * @param title    the title of the post
+     * @param content  the content of the post
+     * @param image    the image file (optional)
+     * @param username the username of the author
+     * @return a DTO representing the created post
+     */
     public PostCreateResponseDto createPost(String title, String content, MultipartFile image, String username) {
-        // Создаем новый объект Post
         Post post = new Post();
         post.setTitle(title);
         post.setContent(content);
         post.setUsername(username);
-
-        // Если изображение передано, сохраняем его
+        // Upload image if provided and set the image URL
         if (image != null) {
             String imageUrl = imgurService.uploadImage(image).block();
-            post.setImageUrl(imageUrl);  // Устанавливаем URL изображения в пост
+            post.setImageUrl(imageUrl);
         }
-
-        // Сохраняем пост в базу данных
+        // Save the post to the database
         post = repository.save(post);
-
-        // Возвращаем ответ в формате DTO
+        // Map and return the response DTO
         return mapper.map(post, PostCreateResponseDto.class);
     }
 
-//    private String saveImage(MultipartFile image) {
-//        try {
-//            // Генерируем уникальное имя для файла и сохраняем его
-//            String filename = UUID.randomUUID() + "_" + image.getOriginalFilename();
-//            Path filePath = Paths.get(fileUploadConfig.getUploadPath(), filename);
-//            Files.copy(image.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-//            return filename; // Или полный путь, если необходимо
-//        } catch (IOException e) {
-//            throw new RuntimeException("Failed to store image", e);
-//        }
-//    }
-
-
     /**
-     * Retrieves a list of all posts, sorted by creation date in descending order.
+     * Retrieves a list of all posts, optionally filtered by username, sorted by creation date (descending).
      *
-     * @return a list of PostDto objects representing all posts
+     * @param username the username to filter posts by (optional)
+     * @return a list of PostDto objects
      */
     public List<PostDto> list(String username) {
         List<Post> posts = username != null ? repository.findByUsername(username) : repository.findAll();
-
-        // Sort posts by creation date (descending), map them to PostDto, and collect as a list
-        return posts.stream().sorted(Comparator.comparing(Post::getCreatedAt).reversed()).map(post -> mapper.map(post, PostDto.class)).collect(Collectors.toList());
+        // Sort posts by creation date (descending) and map them to PostDto
+        return posts.stream()
+                .sorted(Comparator.comparing(Post::getCreatedAt).reversed())
+                .map(post -> mapper.map(post, PostDto.class))
+                .collect(Collectors.toList());
     }
 
+    /**
+     * Retrieves a post by its ID.
+     *
+     * @param id the ID of the post
+     * @return the PostDto object for the given ID
+     */
     public PostDto getPostById(String id) {
-        return repository.findById(id).map(post -> mapper.map(post, PostDto.class)).orElseThrow(() -> new RuntimeException("Post not found"));
+        return repository.findById(id)
+                .map(post -> mapper.map(post, PostDto.class))
+                .orElseThrow(() -> new RuntimeException("Post not found"));
     }
 
+    /**
+     * Retrieves the image associated with a post by its ID.
+     *
+     * @param id the ID of the post
+     * @return a byte array of the image data
+     */
+    public byte[] getImageByPostId(String id) {
+        return imgurService.getImageByDirectUrl(getPostById(id).getImageUrl());
+    }
 }
