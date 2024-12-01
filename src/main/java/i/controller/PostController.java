@@ -12,8 +12,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.security.Principal;
 import java.util.List;
 
-import static org.springframework.http.HttpStatus.OK;
-
 @RequestMapping("/posts")
 @RestController
 @RequiredArgsConstructor

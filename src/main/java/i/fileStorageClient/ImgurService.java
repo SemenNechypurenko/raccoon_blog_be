@@ -1,4 +1,4 @@
-package i.storage;
+package i.fileStorageClient;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import i.repository.PostRepository;

@@ -5,7 +5,7 @@ import i.dto.PostDto;
 import i.dto.PostFileUrlDto;
 import i.model.Post;
 import i.repository.PostRepository;
-import i.storage.FileStorage;
+import i.fileStorageClient.FileStorage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
