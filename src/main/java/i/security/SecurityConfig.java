@@ -39,16 +39,16 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(requests -> requests
-                        .requestMatchers(HttpMethod.POST, "/users").permitAll()
-                        .requestMatchers("/auth/login").permitAll()
-                        .anyRequest().authenticated())
+                        .requestMatchers(HttpMethod.POST, "/users").permitAll() // Allow user registration
+                        .requestMatchers("/users/confirm-email").permitAll() // Allow email confirmation
+                        .requestMatchers("/auth/login").permitAll() // Allow login
+                        .anyRequest().authenticated()) // Require authentication for other requests
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
-
 
     @Bean
     public AuthenticationProvider authenticationProvider() {

@@ -7,13 +7,14 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.PostMapping;
 
 import static org.springframework.http.HttpStatus.CREATED;
-
 
 @RestController
 @RequiredArgsConstructor
@@ -28,4 +29,10 @@ public class UserController {
         return new ResponseEntity<>(userService.save(userCreateRequestDto), CREATED);
     }
 
+    // Handles the email confirmation request based on the token
+    @GetMapping("/confirm-email")
+    public ResponseEntity<Void> confirmEmail(@RequestParam String token) {
+        userService.confirmEmail(token);
+        return ResponseEntity.ok().build();
+    }
 }

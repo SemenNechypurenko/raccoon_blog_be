@@ -18,7 +18,7 @@ import java.util.UUID;
 @Data
 public class User {
     @Id
-    private String id = UUID.randomUUID().toString();
+    private String id = UUID.randomUUID().toString();  // Unique identifier for the user
 
     @NotEmpty(message = "Username cannot be empty")
     private String username;
@@ -32,4 +32,8 @@ public class User {
 
     @NotEmpty(message = "Roles cannot be empty")
     private Set<Role> roles = new HashSet<>();
+
+    private String confirmationToken;  // Token for email confirmation
+
+    private boolean emailVerified = false;  // Flag indicating if the email is confirmed
 }

@@ -15,4 +15,5 @@ public class UserCreateResponseDto {
     private String username;
     private String email;
     private Set<RoleDto> roles;
+    private String confirmationToken;
 }

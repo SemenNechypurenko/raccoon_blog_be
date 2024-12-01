@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -24,12 +25,21 @@ public class UserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final ModelMapper modelMapper;
+    private final EmailService emailService;
 
     public UserCreateResponseDto save(UserCreateRequestDto userCreateRequestDto) {
         // Checking the uniqueness of the username and email
         validateUniqueUser(userCreateRequestDto.getUsername(), userCreateRequestDto.getEmail());
         User user = convertToEntity(userCreateRequestDto);
+
+        final String confirmationToken = UUID.randomUUID().toString();
+        user.setConfirmationToken(confirmationToken);
+
         user = userRepository.save(user);
+
+        // Отправляем email с ссылкой для подтверждения
+        emailService.sendConfirmationEmail(user.getEmail(), confirmationToken);
+
         return convertFromEntity(user);
     }
 
@@ -98,4 +108,16 @@ public class UserService {
         return roles;
     }
 
+    /**
+     * Confirms the user's email by verifying the token.
+     * This method is now part of the service layer.
+     */
+    public void confirmEmail(String token) {
+        User user = userRepository.findByConfirmationToken(token)
+                .orElseThrow(() -> new RuntimeException("Confirmation token not found"));
+        // Confirm the user's email and clear the token
+        user.setEmailVerified(true);
+        user.setConfirmationToken(null);  // Token is no longer needed after confirmation
+        userRepository.save(user);  // Save the updated user
+    }
 }
