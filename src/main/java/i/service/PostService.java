@@ -2,6 +2,7 @@ package i.service;
 
 import i.dto.PostCreateResponseDto;
 import i.dto.PostDto;
+import i.dto.PostFileUrlDto;
 import i.model.Post;
 import i.repository.PostRepository;
 import i.storage.FileStorage;
@@ -79,14 +80,16 @@ public class PostService {
                 .orElseThrow(() -> new RuntimeException("Post not found"));
     }
 
-    public String getImageUrlByPostId(String id) {
+    public PostFileUrlDto getImageUrlByPostId(String id) {
         Post post = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Post not found with ID: " + id));
+
         String imageUrl = post.getImageUrl();
+
         if (imageUrl == null || imageUrl.isEmpty()) {
             throw new IllegalArgumentException("Post with ID " + id + " does not have an associated image.");
         }
-        return imageUrl;
+        return new PostFileUrlDto(imageUrl);
     }
 
 

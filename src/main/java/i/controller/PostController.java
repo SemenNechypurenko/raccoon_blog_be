@@ -2,6 +2,7 @@ package i.controller;
 
 import i.dto.PostCreateResponseDto;
 import i.dto.PostDto;
+import i.dto.PostFileUrlDto;
 import i.service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -26,20 +27,20 @@ public class PostController {
             @RequestPart("content") String content, // Получаем content как строку
             @RequestPart(value = "image", required = false) MultipartFile image, // Получаем файл
             Principal principal) {
-        PostCreateResponseDto responseDto = service.createPost(title, content, image, principal.getName());
 
-        return ResponseEntity.ok(responseDto);
+        return ResponseEntity.ok(
+                service.createPost(title, content, image, principal.getName()));
     }
 
 
     @GetMapping
     public ResponseEntity<List<PostDto>> getListOfPosts() {
-        return new ResponseEntity<>(service.list(null), OK);
+        return ResponseEntity.ok(service.list(null));
     }
 
     @GetMapping("/user/{username}")
     public ResponseEntity<List<PostDto>> getListOfPostsForUser(@PathVariable("username") String username) {
-        return new ResponseEntity<>(service.list(username), OK);
+        return ResponseEntity.ok(service.list(username));
     }
 
     @GetMapping("/{id}")
@@ -48,9 +49,8 @@ public class PostController {
     }
 
     @GetMapping("/{id}/image-url")
-    public ResponseEntity<String> getImageUrl(@PathVariable("id") String id) {
-        String imageUrl = service.getImageUrlByPostId(id);
-        return ResponseEntity.ok(imageUrl);
+    public ResponseEntity<PostFileUrlDto> getImageUrl(@PathVariable("id") String id) {
+        return ResponseEntity.ok(service.getImageUrlByPostId(id));
     }
 
 
