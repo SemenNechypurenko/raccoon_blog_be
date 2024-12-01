@@ -46,6 +46,7 @@ public class UserService {
     }
 
     /**
+     *
      * Check if the username and email are unique, and throw an exception if they already exist.
      */
     private void validateUniqueUser(String username, String email) {
