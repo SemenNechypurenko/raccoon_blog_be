@@ -24,7 +24,7 @@ public class UserController {
 
     private final UserService userService;
 
-    @PostMapping
+    @PostMapping("/register")
     public ResponseEntity<UserCreateResponseDto> save(@Valid @RequestBody UserCreateRequestDto userCreateRequestDto) {
         return new ResponseEntity<>(userService.save(userCreateRequestDto), CREATED);
     }

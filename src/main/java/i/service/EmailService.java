@@ -17,7 +17,7 @@ public class EmailService {
     private String senderEmail;
 
     // Global constants
-    private static final String CONFIRMATION_URL_TEMPLATE = "http://localhost:8080/api/users/confirm-email?token=";
+    private static final String CONFIRMATION_URL_TEMPLATE = "http://localhost:3000/users/confirm-email?token=";
     private static final String CONFIRMATION_EMAIL_SUBJECT = "Confirm your email address";
     private static final String CONFIRMATION_EMAIL_TEXT_TEMPLATE = "Please click the following link to confirm your email address: ";
 
