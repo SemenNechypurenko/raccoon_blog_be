@@ -26,17 +26,21 @@ public class AuthService {
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
 
-
     public TokenDto token(AuthenticationRequestDto dto) {
 
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(dto.getUsername(), dto.getPassword()));
 
         final UserDetails userDetails = userDetailsService.loadUserByUsername(dto.getUsername());
-        final User currenUser = userRepository.findByUsername(dto.getUsername()).orElse(null);
+        final User currentUser = userRepository.findByUsername(dto.getUsername())
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
-        UserCreateResponseDto userCreateResponseDto = modelMapper.map(currenUser, UserCreateResponseDto.class);
+        if (!currentUser.isEmailVerified()) {
+            throw new RuntimeException("Email is not verified");
+        }
 
+        UserCreateResponseDto userCreateResponseDto
+                = modelMapper.map(currentUser, UserCreateResponseDto.class);
         String token = jwtUtils.generateToken(userDetails);
 
         return new TokenDto(userCreateResponseDto, token);
