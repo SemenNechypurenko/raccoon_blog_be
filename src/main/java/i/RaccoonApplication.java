@@ -11,10 +11,6 @@ public class RaccoonApplication {
     static String mongoUri;
 
     public static void main(String[] args) {
-
-        String connectingString = mongoUri;
-        System.out.println("        System.out.println(connectingString): " + connectingString);
-
         SpringApplication.run(RaccoonApplication.class, args);
     }
 
