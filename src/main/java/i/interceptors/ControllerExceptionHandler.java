@@ -1,5 +1,6 @@
 package i.interceptors;
 
+import i.exception.EmailNotVerifiedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -28,6 +29,12 @@ public class ControllerExceptionHandler {
         });
 
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(EmailNotVerifiedException.class)
+    public ResponseEntity<Map<String, String>> handleEmailNotVerifiedException(EmailNotVerifiedException ex) {
+        return new ResponseEntity<>(Collections.singletonMap("message", ex.getMessage()),
+                HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)

@@ -3,6 +3,7 @@ package i.service;
 import i.dto.AuthenticationRequestDto;
 import i.dto.TokenDto;
 import i.dto.UserCreateResponseDto;
+import i.exception.EmailNotVerifiedException;
 import i.model.User;
 import i.repository.UserRepository;
 import i.security.JwtUtils;
@@ -66,7 +67,8 @@ class AuthServiceTest {
         // Create a mock User object returned by the UserRepository
         User mockUser = new User();
         mockUser.setUsername(username);
-
+        mockUser.setEmailVerified(true);
+;
         // Create the expected UserCreateRequestDto object to map from User
         UserCreateResponseDto userCreateResponseDto = new UserCreateResponseDto();
 
@@ -121,6 +123,53 @@ class AuthServiceTest {
         // Verify that no other methods are called after authentication failure
         verify(userDetailsService, never()).loadUserByUsername(anyString());
         verify(userRepository, never()).findByUsername(anyString());
+        verify(jwtUtils, never()).generateToken(any());
+        verify(modelMapper, never()).map(any(), eq(UserCreateResponseDto.class));
+    }
+
+    @Test
+    @DisplayName("Should throw EmailNotVerifiedException when email is not verified")
+    void shouldThrowEmailNotVerifiedExceptionWhenEmailNotVerified() {
+        // Arrange: Set up test data
+        String username = "testUser";
+        String password = "testPass";
+
+        AuthenticationRequestDto authRequestDto = new AuthenticationRequestDto(username, password);
+
+        UserDetails userDetails = org.springframework.security.core.userdetails.User
+                .withUsername(username)
+                .password(password)
+                .roles("USER")
+                .build();
+
+        User mockUser = new User();
+        mockUser.setUsername(username);
+        mockUser.setEmailVerified(false);  // Email is not verified
+
+        // Mock authentication to pass
+        when(authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password)))
+                .thenReturn(null);
+
+        // Mock UserDetailsService and UserRepository behavior
+        when(userDetailsService.loadUserByUsername(username)).thenReturn(userDetails);
+        when(userRepository.findByUsername(username)).thenReturn(Optional.of(mockUser));
+
+        // Act & Assert: Ensure EmailNotVerifiedException is thrown
+        EmailNotVerifiedException exception = assertThrows(
+                EmailNotVerifiedException.class,
+                () -> authService.token(authRequestDto)
+        );
+
+        // Check the exception message
+        assertEquals("Email is not verified", exception.getMessage());
+
+        // Verify interactions
+        verify(authenticationManager, times(1)).authenticate(
+                new UsernamePasswordAuthenticationToken(username, password));
+        verify(userDetailsService, times(1)).loadUserByUsername(username);
+        verify(userRepository, times(1)).findByUsername(username);
+
+        // Ensure no interactions with JwtUtils and ModelMapper since exception was thrown
         verify(jwtUtils, never()).generateToken(any());
         verify(modelMapper, never()).map(any(), eq(UserCreateResponseDto.class));
     }

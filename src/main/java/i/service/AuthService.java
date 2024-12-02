@@ -3,6 +3,7 @@ package i.service;
 import i.dto.AuthenticationRequestDto;
 import i.dto.TokenDto;
 import i.dto.UserCreateResponseDto;
+import i.exception.EmailNotVerifiedException;
 import i.model.User;
 import i.repository.UserRepository;
 import i.security.JwtUtils;
@@ -36,7 +37,7 @@ public class AuthService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         if (!currentUser.isEmailVerified()) {
-            throw new RuntimeException("Email is not verified");
+            throw new EmailNotVerifiedException("Email is not verified");
         }
 
         UserCreateResponseDto userCreateResponseDto

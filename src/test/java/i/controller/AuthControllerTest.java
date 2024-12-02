@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import i.dto.AuthenticationRequestDto;
 import i.dto.TokenDto;
 import i.dto.UserCreateResponseDto;
+import i.exception.EmailNotVerifiedException;
 import i.interceptors.ControllerExceptionHandler;
 import i.service.AuthService;
 import jdk.jfr.Description;
@@ -62,6 +63,7 @@ class AuthControllerTest {
                             "id": "6747b35f4d3f9466bc949b76",
                             "username": "testUser",
                             "email": "testUser@mail.de",
+                            "confirmationToken": "test-confirmation-token",
                             "roles": []
                         }
                         """,
@@ -87,6 +89,38 @@ class AuthControllerTest {
                 .andExpect(jsonPath("$.token").value("mockJwtToken"))
                 .andExpect(jsonPath("$.user.username").value("testUser"));
     }
+
+    @Test
+    @Description("Should return 403 status when email is not verified")
+    void shouldReturn403Response_whenEmailNotVerified() throws Exception {
+        // Mock request DTO
+        final AuthenticationRequestDto authRequestDto = objectMapper.readValue(
+                """
+                        {
+                               "username": "unverifiedUser",
+                               "password": "testPass"
+                           }
+                        """,
+                AuthenticationRequestDto.class);
+
+        // Mock behavior of AuthService to throw EmailNotVerifiedException
+        when(authService.token(authRequestDto)).thenThrow(new EmailNotVerifiedException("Email is not verified"));
+
+        // Execute the request and verify the response
+        mockMvc.perform(post("/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(
+                                """
+                                        {
+                                               "username": "unverifiedUser",
+                                               "password": "testPass"
+                                           }
+                                        """
+                        ))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.message").value("Email is not verified"));
+    }
+
 
     @Test
     @Description("Should return bad request status when username is not entered")
