@@ -1,11 +1,12 @@
 package i.service;
 
-import i.dto.MessageResponseDto;
+import i.dto.MessageDto;
 import i.model.Message;
 import i.repository.MessageRepository;
 import i.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,7 +14,6 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class MessageService {
-
     private final MessageRepository repository;
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
@@ -25,8 +25,13 @@ public class MessageService {
      * @param content   The content of the message.
      * @return MessageResponseDto with the details of the sent message.
      */
-    public MessageResponseDto sendMessage(String recipient, String sender, String content) {
-        userRepository.checkUserExists(recipient);  // Throws an exception if the recipient doesn't exist
+    public MessageDto sendMessage(String recipient, String sender, String content) {
+        if (!userRepository.existsByUsername(recipient)) {
+            throw new UsernameNotFoundException(String.format("recipient %s not found", recipient));
+        }
+        if (!userRepository.existsByUsername(sender)) {
+            throw new UsernameNotFoundException(String.format("sender %s not found", sender));
+        }
         // Create a new message object and set its properties
         Message message = new Message();
         message.setRecipient(recipient);
@@ -35,7 +40,7 @@ public class MessageService {
         // Save the message to the repository and get the saved message
         Message sentMessage = repository.save(message);
         // Return the message details as a MessageResponseDto
-        return modelMapper.map(sentMessage, MessageResponseDto.class);
+        return modelMapper.map(sentMessage, MessageDto.class);
     }
 
     /**
@@ -44,10 +49,13 @@ public class MessageService {
      * @param sender The sender whose messages are to be retrieved.
      * @return A list of messages sent by the specified sender.
      */
-    public List<Message> getMessagesBySender(String sender) {
+    public List<MessageDto> getMessagesBySender(String sender) {
         // Ensure that the sender exists before retrieving their messages
-        userRepository.checkUserExists(sender);
-        return repository.findBySender(sender);  // Fetch messages sent by the sender
+        if (!userRepository.existsByUsername(sender)) {
+            throw new UsernameNotFoundException(String.format("sender %s not found", sender));
+        }
+        return repository.findBySender(sender).stream().map(message ->
+                modelMapper.map(message, MessageDto.class)).toList();
     }
 
     /**
@@ -56,9 +64,12 @@ public class MessageService {
      * @param recipient The recipient whose messages are to be retrieved.
      * @return A list of messages received by the specified recipient.
      */
-    public List<Message> getMessagesByRecipient(String recipient) {
+    public List<MessageDto> getMessagesByRecipient(String recipient) {
         // Ensure that the recipient exists before retrieving their messages
-        userRepository.checkUserExists(recipient);
-        return repository.findByRecipient(recipient);  // Fetch messages received by the recipient
+        if (!userRepository.existsByUsername(recipient)) {
+            throw new UsernameNotFoundException(String.format("recipient %s not found", recipient));
+        }
+        return repository.findByRecipient(recipient).stream().map(message ->
+                modelMapper.map(message, MessageDto.class)).toList();
     }
 }
