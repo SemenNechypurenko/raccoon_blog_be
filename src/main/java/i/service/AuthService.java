@@ -37,7 +37,7 @@ public class AuthService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         if (!currentUser.isEmailVerified()) {
-            throw new EmailNotVerifiedException("Email is not verified");
+            throw new EmailNotVerifiedException("Email not verified");
         }
 
         UserCreateResponseDto userCreateResponseDto
