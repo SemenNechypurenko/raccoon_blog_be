@@ -11,7 +11,7 @@ public interface UserRepository extends MongoRepository<User, String> {
     Optional<User> findByUsername(String username);
     Optional<User> findByConfirmationToken(String confirmationToken);
 
-    default void userExists(String userId) {
+    default void checkUserExists(String userId) {
         if (!existsById(userId))
             throw new UsernameNotFoundException(String.format("Username %s not found", userId));
     }

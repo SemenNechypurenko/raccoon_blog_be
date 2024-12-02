@@ -6,24 +6,27 @@ import i.service.MessageService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController // Marks this class as a REST controller
 @RequestMapping("/messages") // All routes in this controller will start with "/api/messages"
 @RequiredArgsConstructor
+@Validated
 public class MessageController {
 
     private final MessageService messageService;
 
     // Endpoint for sending a message
     @PostMapping
-    public ResponseEntity<MessageResponseDto> sendMessage(@Valid @RequestParam String sender,
-                                                          @RequestParam String recipient,
-                                                          @RequestParam String content) {
-        return ResponseEntity.ok(messageService.sendMessage(sender, recipient, content)); // Return the DTO as the response
+    public ResponseEntity<MessageResponseDto> sendMessage(@RequestParam String recipient,
+                                                          @RequestParam String content,
+                                                          Principal principal) {
+        return ResponseEntity.ok(messageService.sendMessage(recipient, principal.getName(), content)); // Return the DTO as the response
     }
 
     // Endpoint for retrieving sent messages

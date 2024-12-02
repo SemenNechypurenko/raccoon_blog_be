@@ -161,7 +161,7 @@ class AuthServiceTest {
         );
 
         // Check the exception message
-        assertEquals("Email is not verified", exception.getMessage());
+        assertEquals("Email not verified", exception.getMessage());
 
         // Verify interactions
         verify(authenticationManager, times(1)).authenticate(
