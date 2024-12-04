@@ -3,7 +3,7 @@ package i.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import i.dto.AuthenticationRequestDto;
 import i.dto.TokenDto;
-import i.dto.UserCreateResponseDto;
+import i.dto.UserDto;
 import i.exception.EmailNotVerifiedException;
 import i.interceptors.ControllerExceptionHandler;
 import i.service.AuthService;
@@ -57,7 +57,7 @@ class AuthControllerTest {
                         """,
                 AuthenticationRequestDto.class);
 
-        final UserCreateResponseDto userCreateResponseDto = objectMapper.readValue(
+        final UserDto userDto = objectMapper.readValue(
                 """
                         {
                             "id": "6747b35f4d3f9466bc949b76",
@@ -67,9 +67,9 @@ class AuthControllerTest {
                             "roles": []
                         }
                         """,
-                UserCreateResponseDto.class);
+                UserDto.class);
 
-        final TokenDto mockTokenDto = new TokenDto(userCreateResponseDto, "mockJwtToken");
+        final TokenDto mockTokenDto = new TokenDto(userDto, "mockJwtToken");
 
         // Mock the behavior of the AuthService
         when(authService.token(authRequestDto)).thenReturn(mockTokenDto);

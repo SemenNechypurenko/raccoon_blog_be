@@ -36,8 +36,12 @@ public class UserController {
 
     // Handles the email confirmation request based on the token
     @GetMapping
-    public ResponseEntity<List<UserDto>> getUsernamesListBySubstring(
-            @RequestParam(required = false) String substring) {
+    public ResponseEntity<List<UserDto>> list() {
+        return new ResponseEntity<>(userService.list(), OK);
+    }
+
+    @GetMapping("/{substring}")
+    public ResponseEntity<List<UserDto>> listContainsString (@PathVariable String substring) {
         return new ResponseEntity<>(userService.getUsernamesListBySubstring(substring), OK);
     }
 }

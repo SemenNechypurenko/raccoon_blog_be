@@ -11,7 +11,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 
 import java.util.List;
@@ -126,18 +125,15 @@ public class UserService {
 
     public List<UserDto> getUsernamesListBySubstring(String substring) {
 
-        List<User> allUsers = repository.findAll();
-
-        if (!StringUtils.hasText(substring)) {
-            return allUsers.stream()
-                    .map(user -> modelMapper.map(user, UserDto.class))
-                    .collect(Collectors.toList());
-        }
-
-        // Фильтруем по подстроке, игнорируя регистр
-        return allUsers.stream()
+       return repository.findAll().stream()
                 .filter(user -> user.getUsername().toLowerCase()
                         .contains(substring.trim().toLowerCase()))
+                .map(user -> modelMapper.map(user, UserDto.class))
+                .collect(Collectors.toList());
+    }
+
+    public List<UserDto> list() {
+        return repository.findAll().stream()
                 .map(user -> modelMapper.map(user, UserDto.class))
                 .collect(Collectors.toList());
     }

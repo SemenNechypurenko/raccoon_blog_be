@@ -2,7 +2,7 @@ package i.service;
 
 import i.dto.AuthenticationRequestDto;
 import i.dto.TokenDto;
-import i.dto.UserCreateResponseDto;
+import i.dto.UserDto;
 import i.exception.EmailNotVerifiedException;
 import i.model.User;
 import i.repository.UserRepository;
@@ -70,7 +70,7 @@ class AuthServiceTest {
         mockUser.setEmailVerified(true);
 ;
         // Create the expected UserCreateRequestDto object to map from User
-        UserCreateResponseDto userCreateResponseDto = new UserCreateResponseDto();
+        UserDto userDto = new UserDto();
 
         // Mock the repository call to return the mock User when looking up by username
         when(userRepository.findByUsername(username)).thenReturn(Optional.of(mockUser));
@@ -82,14 +82,14 @@ class AuthServiceTest {
         when(jwtUtils.generateToken(userDetails)).thenReturn(generatedToken);
 
         // Mock the ModelMapper to map the User object to UserCreateRequestDto
-        when(modelMapper.map(mockUser, UserCreateResponseDto.class)).thenReturn(userCreateResponseDto);
+        when(modelMapper.map(mockUser, UserDto.class)).thenReturn(userDto);
 
         // Act: Call the service method to get the token
         TokenDto result = authService.token(authRequestDto);
 
         // Assert: Check that the returned token and user information are as expected
         assertEquals(generatedToken, result.getToken());  // Ensure the token matches the mocked token
-        assertEquals(userCreateResponseDto, result.getUser());  // Ensure the UserCreateRequestDto matches the mock
+        assertEquals(userDto, result.getUser());  // Ensure the UserCreateRequestDto matches the mock
 
         // Verify that the mock methods were called exactly once with the correct arguments
         verify(authenticationManager, times(1)).authenticate(
@@ -98,7 +98,7 @@ class AuthServiceTest {
         verify(userDetailsService, times(1)).loadUserByUsername(username);  // Ensure the user details were loaded
         verify(jwtUtils, times(1)).generateToken(userDetails);  // Ensure a token was generated for the user
         verify(userRepository, times(1)).findByUsername(username);  // Ensure the user repository was queried for the username
-        verify(modelMapper, times(1)).map(mockUser, UserCreateResponseDto.class);  // Ensure the User object was mapped correctly
+        verify(modelMapper, times(1)).map(mockUser, UserDto.class);  // Ensure the User object was mapped correctly
     }
 
     @Test
@@ -124,7 +124,7 @@ class AuthServiceTest {
         verify(userDetailsService, never()).loadUserByUsername(anyString());
         verify(userRepository, never()).findByUsername(anyString());
         verify(jwtUtils, never()).generateToken(any());
-        verify(modelMapper, never()).map(any(), eq(UserCreateResponseDto.class));
+        verify(modelMapper, never()).map(any(), eq(UserDto.class));
     }
 
     @Test
@@ -171,7 +171,7 @@ class AuthServiceTest {
 
         // Ensure no interactions with JwtUtils and ModelMapper since exception was thrown
         verify(jwtUtils, never()).generateToken(any());
-        verify(modelMapper, never()).map(any(), eq(UserCreateResponseDto.class));
+        verify(modelMapper, never()).map(any(), eq(UserDto.class));
     }
 
 }
