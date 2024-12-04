@@ -30,7 +30,6 @@ public class PostController {
                 service.createPost(title, content, image, principal.getName()));
     }
 
-
     @GetMapping
     public ResponseEntity<List<PostDto>> getListOfPosts() {
         return ResponseEntity.ok(service.list(null));
@@ -50,11 +49,5 @@ public class PostController {
     public ResponseEntity<PostFileUrlDto> getImageUrl(@PathVariable("id") String id) {
         return ResponseEntity.ok(service.getImageUrlByPostId(id));
     }
-
-    @GetMapping("/user/search")
-    public ResponseEntity<List<PostDto>> getPostsByUsernameSubstring(@RequestParam String query) {
-        return ResponseEntity.ok(service.listByUsernameSubstring(query));
-    }
-
 
 }

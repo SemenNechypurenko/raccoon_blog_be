@@ -2,7 +2,6 @@ package i.repository;
 
 import i.model.User;
 import org.springframework.data.mongodb.repository.MongoRepository;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.util.Optional;
 

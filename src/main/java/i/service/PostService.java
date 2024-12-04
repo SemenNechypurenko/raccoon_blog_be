@@ -91,12 +91,4 @@ public class PostService {
         }
         return new PostFileUrlDto(imageUrl);
     }
-
-    public List<PostDto> listByUsernameSubstring(String substring) {
-
-//        repository.
-        return null;
-    }
-
-
 }
