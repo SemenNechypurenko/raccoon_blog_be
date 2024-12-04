@@ -69,9 +69,8 @@ public class CommentService {
         }
     }
 
-    public List<CommentDto> listCommentsByPostId(String postId) {
-        // Получаем все комментарии к заданному посту, конвертируем в DTO и возвращаем
-        return commentRepository.findByItemId(postId).stream()
+    public List<CommentDto> listCommentsByPostId(String itemId) {
+        return commentRepository.findByItemId(itemId).stream()
                 .map(comment -> mapper.map(comment, CommentDto.class))
                 .collect(Collectors.toList());
     }

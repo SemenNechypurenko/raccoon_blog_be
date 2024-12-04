@@ -37,4 +37,11 @@ public class MessageController {
     public ResponseEntity<List<MessageDto>> getReceivedMessages(Principal principal) {
         return ResponseEntity.ok(messageService.getMessagesByRecipient(principal.getName()));
     }
+
+    // Endpoint for retrieving messages by id
+    @GetMapping("/{id}")
+    public ResponseEntity<MessageDto> getMessageById(Principal principal,
+                                                           @PathVariable("id") String id) {
+        return ResponseEntity.ok(messageService.getMessagesById(id, principal.getName()));
+    }
 }

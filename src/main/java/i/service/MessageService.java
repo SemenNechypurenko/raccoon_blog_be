@@ -1,6 +1,7 @@
 package i.service;
 
 import i.dto.MessageDto;
+import i.exception.MessageAccessDeniedException;
 import i.model.Message;
 import i.repository.MessageRepository;
 import i.repository.UserRepository;
@@ -72,4 +73,18 @@ public class MessageService {
         return repository.findByRecipient(recipient).stream().map(message ->
                 modelMapper.map(message, MessageDto.class)).toList();
     }
+
+    public MessageDto getMessagesById(String id, String name) {
+        return repository.findById(id)
+                .map(post -> {
+                            if (!post.getSender().equals(name) && !post.getRecipient().equals(name)) {
+                                throw new MessageAccessDeniedException(
+                                        String.format("Recipient or sender of the message " +
+                                                "does not match with user %s", name));
+                            }
+                            return modelMapper.map(post, MessageDto.class);
+                        }
+                ).orElseThrow(() -> new RuntimeException("Post not found"));
+    }
+
 }
