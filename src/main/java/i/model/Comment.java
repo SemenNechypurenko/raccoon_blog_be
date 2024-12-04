@@ -22,7 +22,7 @@ public class Comment {
 
     @NotNull(message = "Post ID cannot be null")
     @Indexed
-    private String postId;                              // ID of the post to which the comment refers
+    private String itemId;                              // ID of the post or message to which the comment refers
 
     @NotEmpty(message = "Content cannot be empty")
     private String content;                             // Content of the comment
@@ -34,4 +34,5 @@ public class Comment {
     private String parentCommentId;                     // Parent comment ID if this is a reply to another comment
 
     private LocalDateTime createdAt = LocalDateTime.now(); // Date and time when the comment was created
+    private String type; // type og comment (post, message e.g.)
 }
