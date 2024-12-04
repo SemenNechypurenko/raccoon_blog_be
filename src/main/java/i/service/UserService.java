@@ -2,7 +2,7 @@ package i.service;
 
 import i.dto.RoleDto;
 import i.dto.UserCreateRequestDto;
-import i.dto.UserCreateResponseDto;
+import i.dto.UserDto;
 import i.model.Role;
 import i.model.User;
 import i.repository.RoleRepository;
@@ -27,7 +27,7 @@ public class UserService {
     private final ModelMapper modelMapper;
     private final EmailService emailService;
 
-    public UserCreateResponseDto save(UserCreateRequestDto userCreateRequestDto) {
+    public UserDto save(UserCreateRequestDto userCreateRequestDto) {
         // Checking the uniqueness of the username and email
         validateUniqueUser(userCreateRequestDto.getUsername(), userCreateRequestDto.getEmail());
         User user = convertToEntity(userCreateRequestDto);
@@ -71,11 +71,11 @@ public class UserService {
     }
 
     /**
-     * Convert the User entity to UserCreateResponseDto.
+     * Convert the User entity to UserDto.
      */
-    public UserCreateResponseDto convertFromEntity(User user) {
+    public UserDto convertFromEntity(User user) {
         // Use ModelMapper for basic mapping
-        UserCreateResponseDto responseDto = modelMapper.map(user, UserCreateResponseDto.class);
+        UserDto responseDto = modelMapper.map(user, UserDto.class);
 
         // Set the roles for the response
         Set<RoleDto> roleDtos = user.getRoles().stream()

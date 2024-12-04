@@ -1,7 +1,7 @@
 package i.controller;
 
 import i.dto.UserCreateRequestDto;
-import i.dto.UserCreateResponseDto;
+import i.dto.UserDto;
 import i.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +25,7 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping("/register")
-    public ResponseEntity<UserCreateResponseDto> save(@Valid @RequestBody UserCreateRequestDto userCreateRequestDto) {
+    public ResponseEntity<UserDto> save(@Valid @RequestBody UserCreateRequestDto userCreateRequestDto) {
         return new ResponseEntity<>(userService.save(userCreateRequestDto), CREATED);
     }
 

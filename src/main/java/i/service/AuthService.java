@@ -2,7 +2,7 @@ package i.service;
 
 import i.dto.AuthenticationRequestDto;
 import i.dto.TokenDto;
-import i.dto.UserCreateResponseDto;
+import i.dto.UserDto;
 import i.exception.EmailNotVerifiedException;
 import i.model.User;
 import i.repository.UserRepository;
@@ -40,10 +40,10 @@ public class AuthService {
             throw new EmailNotVerifiedException("Email not verified");
         }
 
-        UserCreateResponseDto userCreateResponseDto
-                = modelMapper.map(currentUser, UserCreateResponseDto.class);
+        UserDto userDto
+                = modelMapper.map(currentUser, UserDto.class);
         String token = jwtUtils.generateToken(userDetails);
 
-        return new TokenDto(userCreateResponseDto, token);
+        return new TokenDto(userDto, token);
     }
 }

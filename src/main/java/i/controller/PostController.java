@@ -51,11 +51,10 @@ public class PostController {
         return ResponseEntity.ok(service.getImageUrlByPostId(id));
     }
 
-
-//    @GetMapping("/{id}/image")
-//    public ResponseEntity<byte[]> getImage(@PathVariable("id") String id) {
-//        return ResponseEntity.ok(service.getImageByPostId(id));
-//    }
+    @GetMapping("/user/search")
+    public ResponseEntity<List<PostDto>> getPostsByUsernameSubstring(@RequestParam String query) {
+        return ResponseEntity.ok(service.listByUsernameSubstring(query));
+    }
 
 
 }

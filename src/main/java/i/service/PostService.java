@@ -92,14 +92,11 @@ public class PostService {
         return new PostFileUrlDto(imageUrl);
     }
 
+    public List<PostDto> listByUsernameSubstring(String substring) {
 
-//    /**
-//     * Retrieves the image associated with a post by its ID.
-//     *
-//     * @param id the ID of the post
-//     * @return a byte array of the image data
-//     */
-//    public byte[] getImageByPostId(String id) {
-//        return imgurService.getImageByDirectUrl(getPostById(id).getImageUrl());
-//    }
+//        repository.
+        return null;
+    }
+
+
 }
