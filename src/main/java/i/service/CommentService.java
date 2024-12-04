@@ -5,6 +5,9 @@ import i.dto.CommentCreateResponseDto;
 import i.dto.CommentDto;
 import i.exception.MessageOrPostNotFoundException;
 import i.model.Comment;
+import i.model.Item;
+import i.model.Message;
+import i.model.Post;
 import i.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -21,29 +24,13 @@ import java.util.stream.Collectors;
 public class CommentService {
 
     private final CommentRepository commentRepository;
-    private final PostRepository postRepository; // Для проверки существования поста
+    private final PostRepository postRepository;
     private final MessageRepository messageRepository;
     private final ModelMapper mapper;
 
     public CommentCreateResponseDto createComment(CommentCreateRequestDto requestDto, String username) {
-        // Проверяем, существует ли пост или сообщение с указанным itemId
-        boolean isPostExists = postRepository.existsById(requestDto.getItemId());
-        boolean isMessageExists = messageRepository.existsById(requestDto.getItemId());
-
-        if (!isPostExists) {
-            if (!isMessageExists) {
-                throw new MessageOrPostNotFoundException("No Message or Post found with ID " + requestDto.getItemId());
-            }
-            else {
-
-            }
-//            throw new PostNotFoundException("No Post found with ID " + requestDto.getItemId());
-        }
-
-        if (!isMessageExists) {
-            throw new MessageOrPostNotFoundException("No Message found with ID " + requestDto.getItemId());
-        }
-
+        // Получаем item (Post или Message) по ID
+        Item item = getItemById(requestDto.getItemId());
 
         // Настраиваем маппинг для пропуска поля id
         mapper.typeMap(CommentCreateRequestDto.class, Comment.class).addMappings(m -> {
@@ -60,11 +47,26 @@ public class CommentService {
         // Сохраняем комментарий в базе данных
         comment = commentRepository.save(comment);
 
-//        post.getCommentIds().add(comment.getId());
-//        postRepository.save(post);
+        // Добавляем комментарий в список комментариев item и сохраняем item
+        item.getCommentIds().add(comment.getId());
+        saveItem(item);
 
         // Конвертируем сохраненную сущность в Response DTO и возвращаем
         return mapper.map(comment, CommentCreateResponseDto.class);
+    }
+
+    private Item getItemById(String itemId) {
+        return postRepository.findById(itemId).map(post -> (Item) post)
+                .orElseGet(() -> messageRepository.findById(itemId).map(message -> (Item) message)
+                        .orElseThrow(() -> new MessageOrPostNotFoundException("No Message or Post found with ID " + itemId)));
+    }
+
+    private void saveItem(Item item) {
+        if (item instanceof Post) {
+            postRepository.save((Post) item);
+        } else if (item instanceof Message) {
+            messageRepository.save((Message) item);
+        }
     }
 
     public List<CommentDto> listCommentsByPostId(String postId) {
