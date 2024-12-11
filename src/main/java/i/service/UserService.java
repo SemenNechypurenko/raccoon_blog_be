@@ -12,7 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
-
 import java.util.List;
 import java.util.HashSet;
 import java.util.Optional;
@@ -29,54 +28,77 @@ public class UserService {
     private final ModelMapper modelMapper;
     private final EmailService emailService;
 
+    /**
+     * Saves a new user and sends a confirmation email with a token.
+     *
+     * @param userCreateRequestDto The user details for the new account.
+     * @return The UserDto containing the saved user's information.
+     */
     public UserDto save(UserCreateRequestDto userCreateRequestDto) {
-        // Checking the uniqueness of the username and email
+        log.debug("Attempting to save a new user: {}", userCreateRequestDto.getUsername());
+
+        // Validate if the username and email are unique
         validateUniqueUser(userCreateRequestDto.getUsername(), userCreateRequestDto.getEmail());
+
+        // Convert the request DTO to a User entity
         User user = convertToEntity(userCreateRequestDto);
 
         final String confirmationToken = UUID.randomUUID().toString();
         user.setConfirmationToken(confirmationToken);
 
+        // Save the user to the repository
         user = repository.save(user);
 
-        // Отправляем email с ссылкой для подтверждения
+        // Send confirmation email to the user
         emailService.sendConfirmationEmail(user.getEmail(), confirmationToken);
+        log.info("Confirmation email sent to user: {}", user.getEmail());
 
+        // Return the UserDto with the user's details
         return convertFromEntity(user);
     }
 
     /**
-     * Convert the UserCreateRequestDto entity to User.
+     * Converts the UserCreateRequestDto to a User entity.
      */
     public User convertToEntity(UserCreateRequestDto userCreateRequestDto) {
-        // Use ModelMapper for basic mapping
+        log.debug("Converting UserCreateRequestDto to User entity.");
+
+        // Map the basic fields using ModelMapper
         User user = modelMapper.map(userCreateRequestDto, User.class);
-        // Set and validate roles by getting them from RoleRepository
+
+        // Set and validate roles
         Set<Role> roles = getValidatedRoles(userCreateRequestDto.getRoles());
         user.setRoles(roles);
         return user;
     }
 
     /**
-     * Check if the username and email are unique, and throw an exception if they already exist.
+     * Validates that the username and email are unique.
+     * Throws an exception if either already exists in the system.
      */
     private void validateUniqueUser(String username, String email) {
+        log.debug("Validating uniqueness for username: {} and email: {}", username, email);
+
         Optional<User> userByUsername = repository.findByUsername(username);
         if (userByUsername.isPresent()) {
+            log.error("Username already exists: {}", username);
             throw new IllegalArgumentException("Username already exists: " + username);
         }
 
         Optional<User> userByEmail = repository.findByEmail(email);
         if (userByEmail.isPresent()) {
+            log.error("Email already exists: {}", email);
             throw new IllegalArgumentException("Email already exists: " + email);
         }
     }
 
     /**
-     * Convert the User entity to UserDto.
+     * Converts the User entity to a UserDto.
      */
     public UserDto convertFromEntity(User user) {
-        // Use ModelMapper for basic mapping
+        log.debug("Converting User entity to UserDto.");
+
+        // Map the basic fields using ModelMapper
         UserDto responseDto = modelMapper.map(user, UserDto.class);
 
         // Set the roles for the response
@@ -85,22 +107,23 @@ public class UserService {
                 .collect(Collectors.toSet());
 
         responseDto.setRoles(roleDtos);
-
         return responseDto;
     }
 
     /**
-     * Check the existence of roles from the DTO in the database, returns Set<Role>.
+     * Validates the existence of roles from the DTO and returns a Set<Role>.
      */
     private Set<Role> getValidatedRoles(Set<RoleDto> roleDtos) {
+        log.debug("Validating roles for user creation.");
+
         Set<Role> roles = new HashSet<>();
 
-        // If roles are not specified, add the default role "ROLE_USER"
+        // If roles are not specified, add the default "ROLE_USER"
         if (roleDtos.isEmpty()) {
             roles.add(roleRepository.findByName("ROLE_USER")
                     .orElseThrow(() -> new RuntimeException("Default role 'ROLE_USER' not found")));
         } else {
-            // Check the existence of each role in the database
+            // Validate each role in the database
             for (RoleDto roleDto : roleDtos) {
                 Role role = roleRepository.findByName(roleDto.getName())
                         .orElseThrow(() -> new IllegalArgumentException("Role not found: " + roleDto.getName()));
@@ -111,28 +134,42 @@ public class UserService {
     }
 
     /**
-     * Confirms the user's email by verifying the token.
-     * This method is now part of the service layer.
+     * Confirms the user's email by verifying the confirmation token.
      */
     public void confirmEmail(String token) {
+        log.debug("Confirming email for token: {}", token);
+
         User user = repository.findByConfirmationToken(token)
                 .orElseThrow(() -> new RuntimeException("Confirmation token not found"));
-        // Confirm the user's email and clear the token
+
+        // Confirm email and clear the token
         user.setEmailVerified(true);
         user.setConfirmationToken(null);  // Token is no longer needed after confirmation
-        repository.save(user);  // Save the updated user
+
+        // Save the updated user entity
+        repository.save(user);
+        log.info("Email confirmed for user: {}", user.getEmail());
     }
 
+    /**
+     * Retrieves users whose username contains the given substring.
+     */
     public List<UserDto> getUsernamesListBySubstring(String substring) {
+        log.debug("Searching for usernames containing the substring: {}", substring);
 
-       return repository.findAll().stream()
+        return repository.findAll().stream()
                 .filter(user -> user.getUsername().toLowerCase()
                         .contains(substring.trim().toLowerCase()))
                 .map(user -> modelMapper.map(user, UserDto.class))
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Retrieves a list of all users in the system.
+     */
     public List<UserDto> list() {
+        log.debug("Fetching the list of all users.");
+
         return repository.findAll().stream()
                 .map(user -> modelMapper.map(user, UserDto.class))
                 .collect(Collectors.toList());
