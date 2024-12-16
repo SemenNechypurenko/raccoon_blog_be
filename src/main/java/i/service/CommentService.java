@@ -44,14 +44,10 @@ public class CommentService {
         Item item = getItemById(requestDto.getItemId());
         log.debug("Item found: {}", item);
 
-        // Set up mapping to skip 'id' field
-        mapper.typeMap(CommentCreateRequestDto.class, Comment.class).addMappings(m -> {
-            m.skip(Comment::setId); // Skip mapping id field
-        });
-
-        // Map the DTO to Entity
-        Comment comment = mapper.map(requestDto, Comment.class);
-
+        Comment comment = new Comment();
+        comment.setItemId(item.getId());
+        comment.setContent(requestDto.getContent());
+        comment.setParentCommentId(requestDto.getParentCommentId());
         // Set additional fields for the comment
         comment.setUsername(username);
         comment.setCreatedAt(LocalDateTime.now());

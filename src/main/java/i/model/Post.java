@@ -16,7 +16,6 @@ import java.util.Set;
 @AllArgsConstructor
 @Data
 public class Post extends Item {
-
     @Indexed
     private String title;               // Заголовок поста
     @Indexed
