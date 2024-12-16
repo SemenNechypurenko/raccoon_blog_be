@@ -14,10 +14,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.PathVariable;
 
-
-import java.security.Principal;
 import java.util.List;
 
+import static i.utils.UserUtils.getCurrentAuthUser;
 import static org.springframework.http.HttpStatus.OK;
 
 @RequestMapping("/comments")
@@ -29,8 +28,8 @@ public class CommentController {
 
     @PostMapping
     public ResponseEntity<CommentCreateResponseDto> createComment(
-            @RequestBody CommentCreateRequestDto requestDto, Principal principal) {
-        return ResponseEntity.ok(service.createComment(requestDto, principal.getName()));
+            @RequestBody CommentCreateRequestDto requestDto) {
+        return ResponseEntity.ok(service.createComment(requestDto, getCurrentAuthUser()));
     }
 
     @GetMapping("/post/{postId}")

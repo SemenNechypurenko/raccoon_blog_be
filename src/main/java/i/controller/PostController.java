@@ -15,8 +15,9 @@ import org.springframework.web.bind.annotation.RequestPart;
 
 import org.springframework.web.multipart.MultipartFile;
 
-import java.security.Principal;
 import java.util.List;
+
+import static i.utils.UserUtils.getCurrentAuthUser;
 
 @RequestMapping("/posts")
 @RestController
@@ -27,13 +28,12 @@ public class PostController {
 
     @PostMapping
     public ResponseEntity<PostCreateResponseDto> createPost(
-            @RequestPart("title") String title,   // Получаем title как строку
-            @RequestPart("content") String content, // Получаем content как строку
-            @RequestPart(value = "image", required = false) MultipartFile image, // Получаем файл
-            Principal principal) {
+            @RequestPart("title") String title,
+            @RequestPart("content") String content,
+            @RequestPart(value = "image", required = false) MultipartFile image) {
 
         return ResponseEntity.ok(
-                service.createPost(title, content, image, principal.getName()));
+                service.createPost(title, content, image, getCurrentAuthUser()));
     }
 
     @GetMapping

@@ -20,7 +20,6 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.security.Principal;
 import java.util.Collections;
 import java.util.List;
 
@@ -53,10 +52,6 @@ class CommentControllerTest {
     @Test
     @Description("Test to create a comment and verify the response includes the correct values.")
     void createComment_ShouldReturnCreatedComment() throws Exception {
-        // Arrange: mock Principal to return the user's name
-        Principal principal = Mockito.mock(Principal.class);
-        Mockito.when(principal.getName()).thenReturn("testUser");
-
         // Arrange: create request DTO and expected response DTO
         final CommentCreateRequestDto requestDto = objectMapper.readValue(
                 """
@@ -88,7 +83,6 @@ class CommentControllerTest {
         // Act & Assert: perform POST request and validate the response
         mockMvc.perform(post("/comments")
                         .with(csrf()) // Enable CSRF token for security
-                        .principal(principal) // Pass mock Principal object
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(requestDto)))
                 .andExpect(status().isOk())
