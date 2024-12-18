@@ -1,3 +1,6 @@
+# IntelliJ IDEA settings
+.idea/
+
 # Java dependencies
 /.mvn
 **/target/
@@ -6,18 +9,13 @@
 *.war
 *.ear
 
-# IntelliJ IDEA settings
-.idea/
-*.iml
-out/
-
 # Node.js (if applicable)
-/node_modules
-/.pnp
+node_modules/
+.pnp
 .pnp.js
 
 # Testing
-/coverage
+coverage/
 
 # Environment variables
 .env
