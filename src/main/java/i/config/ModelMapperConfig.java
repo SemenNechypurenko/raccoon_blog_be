@@ -16,14 +16,14 @@ public class ModelMapperConfig {
         ModelMapper modelMapper = new ModelMapper();
 
         modelMapper.getConfiguration()
-                .setFieldMatchingEnabled(true) // Позволяет использовать поля напрямую
+                .setFieldMatchingEnabled(true) // Allows direct use of fields
                 .setFieldAccessLevel(org.modelmapper.config.Configuration.AccessLevel.PRIVATE);
 
-        // Настройка для маппинга CommentCreateRequestDto -> Comment
+        // Configuration for mapping CommentCreateRequestDto -> Comment
         modelMapper.addMappings(new PropertyMap<CommentCreateRequestDto, Comment>() {
             @Override
             protected void configure() {
-                skip(destination.getId()); // Пропустить поле id
+                skip(destination.getId()); // Skip the id field
             }
         });
 
