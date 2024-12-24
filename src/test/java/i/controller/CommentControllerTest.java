@@ -260,4 +260,67 @@ class CommentControllerTest {
                 .andExpect(status().isUnauthorized()); // Expect 401 Unauthorized
     }
 
+    @Test
+    @WithMockUser(username = "testUser") // Simulate user authentication
+    @Description("Test to retrieve a list of comments by username and verify the returned list contains the expected comments.")
+    void getListOfComments_ShouldReturnListOfCommentsByUser() throws Exception {
+        // Arrange: create a list of CommentDto objects
+        final CommentDto commentDto1 = objectMapper.readValue(
+                """
+                        {
+                            "id": "1",
+                            "itemId": "123",
+                            "content": "This is a test comment 1",
+                            "username": "testUser",
+                            "createdAt": "2024-12-10T10:00:00Z"
+                        }
+                        """,
+                CommentDto.class);
+
+        final CommentDto commentDto2 = objectMapper.readValue(
+                """
+                        {
+                            "id": "2",
+                            "itemId": "123",
+                            "content": "This is a test comment 2",
+                            "username": "testUser",
+                            "createdAt": "2024-12-10T10:05:00Z"
+                        }
+                        """,
+                CommentDto.class);
+
+        // Mock the getCommentForUserByUserId service method
+        Mockito.when(commentService.getCommentForUserByUserId("testUser"))
+                .thenReturn(List.of(commentDto1, commentDto2));
+
+        // Act & Assert: perform GET request and validate the response
+        mockMvc.perform(get("/comments/user/testUser")
+                        .contentType("application/json"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.size()").value(2)) // Check that two comments are returned
+                .andExpect(jsonPath("$[0].id").value("1"))
+                .andExpect(jsonPath("$[1].id").value("2"))
+                .andExpect(jsonPath("$[0].content").value("This is a test comment 1"))
+                .andExpect(jsonPath("$[1].content").value("This is a test comment 2"))
+                .andExpect(jsonPath("$[0].username").value("testUser"))
+                .andExpect(jsonPath("$[1].username").value("testUser"))
+                .andExpect(jsonPath("$[0].createdAt").value("2024-12-10T10:00:00Z"))
+                .andExpect(jsonPath("$[1].createdAt").value("2024-12-10T10:05:00Z"));
+    }
+
+    @Test
+    @WithMockUser(username = "testUser") // Simulate user authentication
+    @Description("Test to retrieve a list of comments by username when no comments exist, expecting an empty list.")
+    void getListOfComments_ShouldReturnEmptyListWhenNoCommentsExist() throws Exception {
+        // Mock the getCommentForUserByUserId service method to return an empty list
+        Mockito.when(commentService.getCommentForUserByUserId("testUser"))
+                .thenReturn(Collections.emptyList());
+
+        // Act & Assert: perform GET request and validate the response
+        mockMvc.perform(get("/comments/user/testUser")
+                        .contentType("application/json"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.size()").value(0)); // Check that the list is empty
+    }
+
 }

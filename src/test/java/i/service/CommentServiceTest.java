@@ -178,4 +178,58 @@ class CommentServiceTest {
         assertNotNull(comments, "The comments list should not be null");
         assertTrue(comments.isEmpty(), "The comments list should be empty");
     }
+
+    @Test
+    @DisplayName("Should successfully retrieve comments for a specific user")
+    void getCommentForUserByUserId_success() {
+        // Given
+        Comment comment1 = new Comment();
+        comment1.setId("comment1");
+        comment1.setItemId("post1");
+        comment1.setContent("Test comment 1");
+        comment1.setUsername("user1");
+        comment1.setParentCommentId(null);
+        comment1.setCreatedAt(LocalDateTime.now());
+
+        Comment comment2 = new Comment();
+        comment2.setId("comment2");
+        comment2.setItemId("post2");
+        comment2.setContent("Test comment 2");
+        comment2.setUsername("user1");
+        comment2.setParentCommentId(null);
+        comment2.setCreatedAt(LocalDateTime.now());
+
+        // Mock the repository response
+        when(commentRepository.findByUsername("user1")).thenReturn(List.of(comment1, comment2));
+
+        // Mock ModelMapper mapping
+        CommentDto commentDto1 = new CommentDto("comment1", "post1", "Test comment 1", "user1", null, comment1.getCreatedAt().toString());
+        CommentDto commentDto2 = new CommentDto("comment2", "post2", "Test comment 2", "user1", null, comment2.getCreatedAt().toString());
+        when(modelMapper.map(comment1, CommentDto.class)).thenReturn(commentDto1);
+        when(modelMapper.map(comment2, CommentDto.class)).thenReturn(commentDto2);
+
+        // Call the service method
+        List<CommentDto> comments = commentService.getCommentForUserByUserId("user1");
+
+        // Verify the result
+        assertNotNull(comments, "The comments list should not be null");
+        assertEquals(2, comments.size(), "There should be 2 comments for 'user1'");
+        assertEquals("comment1", comments.get(0).getId(), "The first comment ID should be 'comment1'");
+        assertEquals("comment2", comments.get(1).getId(), "The second comment ID should be 'comment2'");
+    }
+
+    @Test
+    @DisplayName("Should return empty list when no comments are found for the user")
+    void getCommentForUserByUserId_noComments_returnsEmptyList() {
+        // Mock the repository response
+        when(commentRepository.findByUsername("user1")).thenReturn(Collections.emptyList());
+
+        // Call the service method
+        List<CommentDto> comments = commentService.getCommentForUserByUserId("user1");
+
+        // Verify the result
+        assertNotNull(comments, "The comments list should not be null");
+        assertTrue(comments.isEmpty(), "The comments list should be empty");
+    }
+
 }
