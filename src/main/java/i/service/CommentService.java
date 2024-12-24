@@ -127,4 +127,18 @@ public class CommentService {
                     return new CommentNotFoundException("Comment not found");
                 });
     }
+
+    /**
+     * Retrieves a list of comments made by a specific user.
+     * @param username The username of the user whose comments are to be fetched.
+     * @return A list of Comment DTOs representing the user's comments.
+     */
+    public List<CommentDto> getCommentForUserByUserId(String username) {
+        // Fetch comments by the provided username from the repository
+        return commentRepository.findByUsername(username).stream()
+                // Map each Comment entity to a Comment DTO
+                .map(comment -> mapper.map(comment, CommentDto.class))
+                .toList();  // Collect the mapped Comment DTOs into a list
+    }
+
 }
