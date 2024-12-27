@@ -37,6 +37,7 @@ jobs:
           IMGUR_CLIENT_ID: ${{ secrets.IMGUR_CLIENT_ID }}
           MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
           MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
+          MAIL_CONFIRMATION_TEMPLATE: ${{ secrets.MAIL_CONFIRMATION_TEMPLATE }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2

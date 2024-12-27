@@ -18,8 +18,10 @@ public class EmailService {
     @Value("${spring.mail.username}")
     private String senderEmail;
 
-    // Global constants for email template
-    private static final String CONFIRMATION_URL_TEMPLATE = "http://localhost:3000/users/confirm-email?token=";
+    // Inject the confirmation URL template from the configuration or environment
+    @Value("${mail.confirmation.template}")
+    private String confirmationUrlTemplate;
+
     private static final String CONFIRMATION_EMAIL_SUBJECT = "Confirm your email address";
     private static final String CONFIRMATION_EMAIL_TEXT_TEMPLATE = "Please click the following link to confirm your email address: ";
 
@@ -56,8 +58,8 @@ public class EmailService {
     public void sendConfirmationEmail(String email, String confirmationToken) {
         log.debug("Generating confirmation email for: {}", email);
 
-        // Generate confirmation URL
-        final String confirmationUrl = CONFIRMATION_URL_TEMPLATE + confirmationToken;
+        // Generate confirmation URL using the injected template
+        final String confirmationUrl = confirmationUrlTemplate + "/users/confirm-email?token=" + confirmationToken;
 
         // Generate the email content
         final String text = CONFIRMATION_EMAIL_TEXT_TEMPLATE + confirmationUrl;
