@@ -24,11 +24,8 @@ This is the backend of **Raccoon Blog** — a collaborative blogging platform th
 ## 🐳 Local Setup with Docker
 
 1. Make sure you have **Docker** and **Docker Compose** installed.
-2. Clone the repository:
-
-```bash
-git clone https://github.com/SemenNechypurenko/raccoon_blog_be.git
-cd raccoon_blog_be
-Start the application:
+2. Clone the repository.
+bash: git clone https://github.com/SemenNechypurenko/raccoon_blog_be.git
+3. Start the application.
 bash: docker-compose up --build
 The backend will be available at: http://localhost:8080
